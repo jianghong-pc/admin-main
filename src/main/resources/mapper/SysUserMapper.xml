@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qianmi.admin.dao.mapper.SysUserMapper">
+
+    <!--根据用户登录名查询基础用户信息-->
+    <select id="getUserByName" resultType="com.qianmi.admin.bean.GroupAuthority" parameterType="java.lang.String">
+          select id, username, password from t_sys_user where username=#{loginName}
+    </select>
+
+</mapper>

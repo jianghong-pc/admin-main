@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true" scan="true">
+    <include resource="org/springframework/boot/logging/logback/base.xml" />
+
+    <contextName>admin_main</contextName>
+    <property scope="context" name="CHARSET" value="utf-8"/>
+    <property scope="context" name="appName" value="admin_main_logs"/>
+    <property scope="context" name="LOG_HOME" value="../logs/${appName}"/>
+    <property scope="context" name="APP_LOG_HOME" value="${LOG_HOME}/app"/>
+    <property scope="context" name="APP_LOG_TABLE_NAME" value="admin_main_app_record"/>
+    <!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+    <property scope="context" name="APP_PATTERN"
+              value='%d{yyyy-MM-dd HH:mm:ss.SSS}|%level|%M|0|%thread|%replace(%.-1000msg){"(\r|\n)","\t"}|"%.-2000ex{full}"%n'/>
+    <property scope="context" name="CONSOLE_PATTERN"
+              value='%d{yyyy-MM-dd HH:mm:ss.SSS}-[%thread]-[%level]-%C\:%M:%L-%msg %ex{full}%n'/>
+
+    <!-- 应用日志文件 -->
+    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 只记录info及以上级别的日志 -->
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <file>${APP_LOG_HOME}/${HOSTNAME}.app.ing</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日志文件输出的文件名 -->
+            <fileNamePattern>${APP_LOG_HOME}/${APP_LOG_TABLE_NAME}.${HOSTNAME}.%d{yyyy-MM-dd_HHmm}.log.%i
+            </fileNamePattern>
+            <MaxHistory>240</MaxHistory>
+            <!--日志文件保留个数 -->
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <!-- 按时间回滚的同时，按文件大小来回滚 -->
+                <maxFileSize>50MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <charset>${CHARSET}</charset>
+            <pattern>${APP_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 控制台输出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 异步输出 -->
+    <appender name="APP_ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+        <!-- 不丢失日志.默认的,如果队列的80%已满,则会丢弃TRACT、DEBUG、INFO级别的日志 -->
+        <discardingThreshold>0</discardingThreshold>
+        <!-- 更改默认的队列的深度,该值会影响性能.默认值为256 -->
+        <queueSize>1024</queueSize>
+        <!-- 添加附加的appender,最多只能添加一个 -->
+        <appender-ref ref="APP_FILE"/>
+    </appender>
+
+    <logger name="org.springframework.web" level="INFO">
+        <appender-ref ref="APP_FILE"/>
+    </logger>
+    <!-- 这一句至关重要如果没有，就无法输出sql语句 -->
+    <logger name="com.qianmi.admin.dao.mapper" level="INFO">
+        <appender-ref ref="APP_FILE"/>
+    </logger>
+
+    <!-- 自测环境的配置，全部输出到控制台 -->
+    <root level="info">
+        <!--<appender-ref ref="APP_FILE"/>-->
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>

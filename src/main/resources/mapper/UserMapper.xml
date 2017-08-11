@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qianmi.admin.dao.mapper.UserMapper">
+
+    <!--根据用户登录名查询基础用户信息-->
+    <select id="loadUserByUserName" resultType="com.qianmi.admin.bean.User" parameterType="java.lang.String">
+          select
+            t.user_id id,
+            t.user_name username,
+            t.password,
+            t.status,
+            t.add_time addTime
+        from user t where t.user_name = #{username}
+    </select>
+
+    <select id="listGroupsByUserId" resultType="com.qianmi.admin.bean.Group">
+        select
+          g.group_id id,
+          g.group_name name
+        from groups g, group_members m
+
+
+    </select>
+
+</mapper>
